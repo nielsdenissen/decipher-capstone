@@ -14,5 +14,5 @@ WORKDIR /decipher_capstone
 # Install requirements for python
 RUN pip install -r conf/requirements.txt
 
-# At runtime, run the api with the port specified earlier
+# At runtime, run the api
 CMD python -m code.main
