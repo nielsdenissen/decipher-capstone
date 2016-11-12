@@ -3,6 +3,8 @@ import json
 import logging
 from tornado import ioloop, web
 
+from . import decipher
+
 
 class HtmlHandler(web.RequestHandler):
     """
@@ -41,9 +43,14 @@ class DecipherHandler(web.RequestHandler):
         input_text = self.get_argument(name="text")
         print("Received input text: {0}".format(input_text))
 
-        output_text = input_text
+        # Using the decipher class, decipher the text received
+        decipher_obj = decipher.Decipher(input_text)
+        output_text = decipher_obj.get_deciphered_text()
+        cipher = decipher_obj.get_cipher()
 
-        self.finish(json.dumps({'input_text': input_text, 'output_text': output_text}))
+        self.finish(json.dumps({'input_text': input_text,
+                                'output_text': output_text,
+                                'cipher': cipher}))
 
 
 def make_app():
