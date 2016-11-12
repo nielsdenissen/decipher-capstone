@@ -7,8 +7,7 @@ RUN apt-get update && apt-get install -y \
 	libpq-dev \
 	gcc
 
-# Add the application to the container
-ADD code /decipher_capstone/code
+# Add the configuration to the container
 ADD conf /decipher_capstone/conf
 
 # Set working dir
@@ -16,6 +15,9 @@ WORKDIR /decipher_capstone
 
 # Install requirements for python
 RUN pip install -r conf/requirements.txt
+
+# Add the application to the container
+ADD code /decipher_capstone/code
 
 # At runtime, run the api
 CMD python -m code.main

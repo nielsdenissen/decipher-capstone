@@ -1,0 +1,66 @@
+/*
+    main.css
+
+    @author  Niels Denissen
+ */
+
+:root {
+  --primaryText: #618685;
+  --secondaryText: #80ced6;
+  --objectHighlight: #67b5d1;
+  --bgColor: #fefbd8;
+}
+
+body {
+
+  padding: 0px;
+  margin: 0px;
+  overflow-x: hidden;
+
+  background-color: var(--bgColor);
+
+  color: var(--secondaryText);
+  font-family: "Trebuchet MS", Helvetica, sans-serif;
+  font-size: 14px;
+
+}
+
+.titlePane {
+
+  height: 66px;
+  width: 100%;
+
+  top: 0px;
+  position: fixed;
+
+  background-color: var(--bgColor);
+
+  text-align: center;
+
+}
+
+.titlePane #titleText {
+  color: var(--primaryText);
+  font-family: "Trebuchet MS";
+  font-size: 33px;
+  letter-spacing: 8px;
+}
+
+.titlePane #connectionStatusText {
+  fill: var(--secondaryText);
+  font-size: 10px;
+}
+
+.contentPane {
+
+  width: 100%;
+  height: 66px;
+
+  top: 66px;
+  position: fixed;
+
+  background-color: var(--bgColor);
+
+  font-size: 15px;
+
+}

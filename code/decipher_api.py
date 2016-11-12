@@ -1,6 +1,25 @@
+import os
 import json
 import logging
 from tornado import ioloop, web
+
+
+class HtmlHandler(web.RequestHandler):
+    """
+    Web request handler for the root directory. Returns the index.html page.
+    """
+
+    def data_received(self, chunk):
+        pass
+
+    def get(self):
+        """
+        Returns the index.html page.
+
+        :return: index.html
+        """
+        print("New frontend page opened")
+        return self.render("static/index.html")
 
 
 class DecipherHandler(web.RequestHandler):
@@ -34,9 +53,12 @@ def make_app():
     :return: tornado application object
     """
     routes = [
+        (r"/", HtmlHandler),
         (r"/decipher", DecipherHandler)
     ]
-    return web.Application(routes, debug=True)
+    return web.Application(routes,
+                           static_path=os.path.join(os.path.dirname(__file__), "static"),
+                           debug=True)
 
 
 def init(port):
