@@ -41,6 +41,9 @@ class DecipherHandler(web.RequestHandler):
         """
         # Parse the arguments
         input_text = self.get_argument(name="text")
+        return_cipher = self.get_argument(name="cipher", default=False) == 'True'
+        return_original = self.get_argument(name="original", default=False) == 'True'
+
         print("Received input text: {0}".format(input_text))
 
         # Using the decipher class, decipher the text received
@@ -48,9 +51,14 @@ class DecipherHandler(web.RequestHandler):
         output_text = decipher_obj.get_deciphered_text()
         cipher = decipher_obj.get_cipher()
 
-        self.finish(json.dumps({'input_text': input_text,
-                                'output_text': output_text,
-                                'cipher': cipher}))
+        result_dict = {'output_text': output_text}
+
+        if return_cipher:
+            result_dict['cipher'] = cipher
+        if return_original:
+            result_dict['input_text'] = input_text
+
+        self.finish(json.dumps(result_dict))
 
 
 def make_app():

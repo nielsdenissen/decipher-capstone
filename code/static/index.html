@@ -16,21 +16,29 @@
 <!-- =================== Beginning of HTML Document Body =================== -->
 <body>
 
-<div class="container">
+<!-- ===== Top Title Pane ===== -->
+<div id="titlePane" class="titlePane">
 
-  <!-- ===== Top Title Pane ===== -->
-  <div id="titlePane" class="titlePane">
+<text id="titleText">Decipher</text>
 
-    <text id="titleText">Decipher</text>
-
-  </div>
+</div>
 
 
-  <!-- ===== Bottom Pane Footer ===== -->
-    <div id="contentPane" class="contentPane">
-        <text id="sampletext">To decipher, go to: localhost:8080/decipher?text=...</text>
-    </div>
+<!-- ===== Button Pane ===== -->
+<div id="contentPane" class="contentPane">
+    <form action="decipher" method="get" id="form1">
+      Text to translate: <input type="text" name="text"><br>
+      Return Original: <input type="text" name="cipher" value="False"><br>
+      Return Cipher: <input type="text" name="original" value="False"><br>
+    </form>
 
+    <button type="submit" form="form1" value="Submit" formtarget="iframe_result">Submit</button>
+</div>
+
+
+<!-- ===== Result Pane ===== -->
+<div id="resultPane" class="resultPane">
+    <iframe height="100%" width="100%" name="iframe_result"></iframe>
 </div>
 
 </body>
