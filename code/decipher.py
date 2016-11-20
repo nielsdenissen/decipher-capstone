@@ -1,70 +1,51 @@
 import string
 import re
+import requests
 
 
-class Decipher:
-    original_txt = None
-    _processed_txt = None
-    translated_txt = None
-    _cipher = None
+def calc_cipher(text):
+    """
+    Calculate the cipher for the processed text
+    """
+    # Get the processed text by removing any characters not in a-z and lowercase all
+    processed_txt = " ".join(re.findall("[a-zA-Z]+", text.lower()))
 
-    def __init__(self, original_txt):
-        """
-        Initialize class with original text
+    cipher = {
+        letter: letter for letter in string.ascii_lowercase
+        }
 
-        :param original_txt: original text to decipher
-        """
-        self.original_txt = original_txt
+    return cipher
 
-        # Get the processed text by removing any characters not in a-z and lowercase all
-        self._processed_txt = " ".join(re.findall("[a-zA-Z]+", original_txt.lower()))
 
-    def _calc_cipher(self):
-        """
-        Calculate the cipher for the processed text
-        """
-        self._cipher = {
-            letter: letter for letter in string.ascii_lowercase
-            }
+def decipher_text(text, cipher=None):
+    """
+    Decipher the original text, calculate the cipher if necessary
+    """
+    if cipher is None:
+        cipher = calc_cipher(text)
 
-    def _decipher_text(self):
-        """
-        Decipher the original text, calculate the cipher if necessary
-        """
-        if self._cipher is None:
-            self._calc_cipher()
+    translated_txt = ""
+    for letter in text:
+        if letter in string.ascii_lowercase:
+            letter_to_add = cipher[letter]
+        elif letter in string.ascii_uppercase:
+            letter_to_add = cipher[letter.lower()].upper()
+        else:
+            letter_to_add = letter
 
-        translated_txt = ""
-        for letter in self.original_txt:
-            if letter in string.ascii_lowercase:
-                letter_to_add = self._cipher[letter]
-            elif letter in string.ascii_uppercase:
-                letter_to_add = self._cipher[letter.lower()].upper()
-            else:
-                letter_to_add = letter
+        translated_txt += letter_to_add
 
-            translated_txt += letter_to_add
+    return translated_txt
 
-        self.translated_txt = translated_txt
 
-    def get_cipher(self):
-        """
-        Get the cipher for this original text
+def check_word_perc(wordlist, language):
+    is_word_list = [False] * len(wordlist)
+    for i in range(len(wordlist)):
+        word = wordlist[i]
+        response = requests.get("https://glosbe.com/gapi/translate?"
+                                "from={0}&dest={0}&format=json&phrase={1}".format(language, word))
+        if 'tuc' in response.json().keys():
+            is_word_list[i] = True
 
-        :return: cipher
-        """
-        if self._cipher is None:
-            self._calc_cipher()
-
-        return self._cipher
-
-    def get_deciphered_text(self):
-        """
-        Get the deciphered text using the cipher on the original text
-
-        :return: deciphered text
-        """
-        if self.translated_txt is None:
-            self._decipher_text()
-
-        return self.translated_txt
+    word_perc = float(sum(is_word_list)) / len(is_word_list)
+    return word_perc

@@ -47,14 +47,11 @@ class DecipherHandler(web.RequestHandler):
         print("Received input text: {0}".format(input_text))
 
         # Using the decipher class, decipher the text received
-        decipher_obj = decipher.Decipher(input_text)
-        output_text = decipher_obj.get_deciphered_text()
-        cipher = decipher_obj.get_cipher()
+        output_text = decipher.decipher_text(input_text)
 
         result_dict = {'output_text': output_text}
-
         if return_cipher:
-            result_dict['cipher'] = cipher
+            result_dict['cipher'] = decipher.calc_cipher(input_text)
         if return_original:
             result_dict['input_text'] = input_text
 
