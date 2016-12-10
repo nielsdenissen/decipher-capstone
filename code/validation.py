@@ -1,5 +1,46 @@
 import re
-import requests
+import glob
+
+loaded_valid_word_lists = {}
+
+
+def get_valid_word_list(language):
+    """
+    Load the word list for a specific language.
+
+    :param data_path: Path to the data folder
+    :param language: language to get words for
+    :return: list of words valid in language
+    """
+    if language in loaded_valid_word_lists.keys():
+        return loaded_valid_word_lists[language]
+    else:
+        matches = list()
+        for data_path in ('data', '../data'):
+            filepart_to_search = data_path+"/{}wiktionary".format(language)
+            matches += list(glob.glob(filepart_to_search + '*'))
+
+        if len(matches) <= 0:
+            # No match, try to download file
+            raise FileNotFoundError("No file for this language")
+        else:
+            dict_file = matches[0]
+
+        with open(dict_file) as f:
+            file_lines = f.readlines()
+
+        valid_word_list = set()
+        for entry in file_lines[1:]:
+            try:
+                if re.split(r'\t+', entry.strip())[0] == '0':
+                    valid_word = re.split(r'\t+', entry.strip())[1]
+                    valid_word_list.add(valid_word)
+            except IndexError:
+                # Issue parsing this line, ignore it
+                pass
+
+        loaded_valid_word_lists[language] = valid_word_list
+        return valid_word_list
 
 
 def is_valid_sentence(sentence, language, acceptance_perc=0.8):
@@ -36,18 +77,11 @@ def check_valid_word_perc(wordlist, language):
         return 0.0
 
     valid_word_count = 0
+    valid_words = get_valid_word_list(language)
 
     for word in wordlist:
-        query_string = "https://{0}.wiktionary.org/w/api.php" \
-                       "?action=query&titles={1}&format=json".format(language, word)
-        response = requests.get(query_string)
-
-        try:
-            print(response.json())
-            if '-1' not in response.json()['query']['pages'].keys():
-                valid_word_count += 1
-        except ValueError:
-            print("{0} couldn't be translated. (language: {1})".format(word, language))
+        if word in valid_words:
+            valid_word_count += 1
 
     valid_word_perc = float(valid_word_count) / len(wordlist)
     return valid_word_perc

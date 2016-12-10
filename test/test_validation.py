@@ -18,6 +18,13 @@ class TestValidation(unittest.TestCase):
         test_words = ['test', 'fries', 'freaky', 'jjjjj']
         self.assertEqual(validation.check_valid_word_perc(wordlist=test_words, language='en'), 0.75)
 
+    def test_load_wordlist(self):
+        dutch_list = validation.get_valid_word_list('nl')
+        self.assertGreater(len(dutch_list), 0)
+
+        english_list = validation.get_valid_word_list('en')
+        self.assertGreater(len(english_list), 0)
+
     def test_speed(self):
         test_words = ['test' for _ in range(50)]
         start_time = time.time()
@@ -25,7 +32,7 @@ class TestValidation(unittest.TestCase):
         end_time = time.time()
 
         process_time = end_time - start_time
-        self.assertLessEqual(process_time, 5)
+        self.assertLessEqual(process_time, 1)
 
 
 if __name__ == '__main__':

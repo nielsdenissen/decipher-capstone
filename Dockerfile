@@ -18,6 +18,7 @@ RUN pip install -r conf/requirements.txt
 
 # Add the application to the container
 ADD code /decipher_capstone/code
+ADD data /decipher_capstone/data
 
 # At runtime, run the api
 CMD python -m code.main

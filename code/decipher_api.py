@@ -41,17 +41,19 @@ class DecipherHandler(web.RequestHandler):
         """
         # Parse the arguments
         input_text = self.get_argument(name="text")
+        language = 'en'
         return_cipher = self.get_argument(name="cipher", default=False) == 'True'
         return_original = self.get_argument(name="original", default=False) == 'True'
 
         print("Received input text: {0}".format(input_text))
 
         # Using the decipher class, decipher the text received
-        output_text = decipher.decipher_text(input_text)
+        cipher = decipher.calc_cipher(text=input_text, language=language)
+        output_text = decipher.decipher_text(text=input_text, cipher=cipher)
 
         result_dict = {'output_text': output_text}
         if return_cipher:
-            result_dict['cipher'] = decipher.calc_cipher(input_text)
+            result_dict['cipher'] = cipher
         if return_original:
             result_dict['input_text'] = input_text
 
