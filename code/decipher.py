@@ -12,6 +12,9 @@ def is_valid_sentence(sentence, language, acceptance_perc=0.8):
     :param acceptance_perc: percentage of words that need to be correct
     :return: True if valid words exceed acceptance percentage
     """
+    if sentence == "":
+        return False
+
     # Remove all characters but words and lowercase all
     processed_sentence = " ".join(re.findall("[a-zA-Z]+", sentence.lower()))
 
@@ -30,14 +33,19 @@ def check_valid_word_perc(wordlist, language):
     :param language: Language of the words
     :return: Percentage of valid words
     """
+    if len(wordlist) <= 0:
+        return 0.0
+
     valid_word_count = 0
 
     for word in wordlist:
-        response = requests.get("https://glosbe.com/gapi/translate?"
-                                "from={0}&dest={0}&format=json&phrase={1}".format(language, word))
+        query_string = "https://{0}.wiktionary.org/w/api.php" \
+                       "?action=query&titles={1}&format=json".format(language, word)
+        response = requests.get(query_string)
 
         try:
-            if 'tuc' in response.json().keys():
+            print(response.json())
+            if '-1' not in response.json()['query']['pages'].keys():
                 valid_word_count += 1
         except ValueError:
             print("{0} couldn't be translated. (language: {1})".format(word, language))
@@ -56,10 +64,11 @@ def calc_cipher(text, language):
     """
     # Get the processed text by removing any characters not in a-z and lowercase all
     processed_txt = " ".join(re.findall("[a-zA-Z]+", text.lower()))
-    decrypted_text = processed_txt
+    decrypted_text = ""
 
     current_try = 0
-    while current_try < 100 and not is_valid_sentence(sentence=decrypted_text, language=language):
+    while current_try < 100 and \
+            not is_valid_sentence(sentence=decrypted_text, language=language):
         # Try a cipher
         offset = current_try % 27
         translate_from = string.ascii_lowercase

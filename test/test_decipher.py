@@ -26,16 +26,16 @@ class TestWordCheck(unittest.TestCase):
     def test_word_existence_dutch(self):
         # Dutch
         test_words = ['test', 'frieten', 'gek', 'jjjjj']
-        self.assertEqual(decipher.check_valid_word_perc(wordlist=test_words, language='nld'), 0.75)
+        self.assertEqual(decipher.check_valid_word_perc(wordlist=test_words, language='nl'), 0.75)
 
     def test_valid_sentence_dutch(self):
         test_sentence = "dit is een test bericht"
-        self.assertTrue(decipher.is_valid_sentence(sentence=test_sentence, language='nld'))
+        self.assertTrue(decipher.is_valid_sentence(sentence=test_sentence, language='nl'))
 
     def test_word_existence_english(self):
         # English
         test_words = ['test', 'fries', 'freaky', 'jjjjj']
-        self.assertEqual(decipher.check_valid_word_perc(wordlist=test_words, language='eng'), 0.75)
+        self.assertEqual(decipher.check_valid_word_perc(wordlist=test_words, language='en'), 0.75)
 
 
 class TestFindCypher(unittest.TestCase):
@@ -48,7 +48,7 @@ class TestFindCypher(unittest.TestCase):
         test_msg = self.dutch_msg
         test_cipher = {letter: letter for letter in string.ascii_lowercase}
 
-        found_cipher = decipher.calc_cipher(text=test_msg, language='nld')
+        found_cipher = decipher.calc_cipher(text=test_msg, language='nl')
         self.assertDictEqual(test_cipher, found_cipher)
         self.assertEqual(test_msg, decipher.decipher_text(text=test_msg, cipher=found_cipher))
 
@@ -63,7 +63,7 @@ class TestFindCypher(unittest.TestCase):
             }
         encrypted_msg = decipher.decipher_text(test_msg, {v: k for k, v in test_cipher.items()})
 
-        found_cipher = decipher.calc_cipher(text=encrypted_msg, language='nld')
+        found_cipher = decipher.calc_cipher(text=encrypted_msg, language='nl')
         self.assertDictEqual(test_cipher, found_cipher)
         self.assertEqual(test_msg, decipher.decipher_text(text=encrypted_msg, cipher=found_cipher))
 
