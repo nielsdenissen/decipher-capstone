@@ -3,9 +3,43 @@ import re
 import requests
 
 
+def is_valid_sentence(sentence, language, acceptance_perc=0.8):
+    wordlist = sentence.split(" ")
+    valid_word_perc = check_valid_word_perc(wordlist, language)
+
+    return valid_word_perc >= acceptance_perc
+
+
+def check_valid_word_perc(wordlist, language):
+    """
+    Check the percentage of valid words in the wordlist given the language.
+
+    :param wordlist: List of words to check for existence
+    :param language: Language of the words
+    :return: Percentage of valid words
+    """
+    valid_word_count = 0
+
+    for word in wordlist:
+        response = requests.get("https://glosbe.com/gapi/translate?"
+                                "from={0}&dest={0}&format=json&phrase={1}".format(language, word))
+
+        try:
+            if 'tuc' in response.json().keys():
+                valid_word_count += 1
+        except ValueError:
+            print("{0} couldn't be translated. (language: {1})".format(word, language))
+
+    valid_word_perc = float(valid_word_count) / len(wordlist)
+    return valid_word_perc
+
+
 def calc_cipher(text):
     """
-    Calculate the cipher for the processed text
+    Calculate the cipher for text on input.
+
+    :param text: encrypted text
+    :return: cipher used to encrypt the text
     """
     # Get the processed text by removing any characters not in a-z and lowercase all
     processed_txt = " ".join(re.findall("[a-zA-Z]+", text.lower()))
@@ -19,7 +53,12 @@ def calc_cipher(text):
 
 def decipher_text(text, cipher=None):
     """
-    Decipher the original text, calculate the cipher if necessary
+    Decipher the text on input.
+    If a cipher is given, use it to decipher the text. Otherwise, calculate the cipher.
+
+    :param text: encrypted text
+    :param cipher: cipher to decrypt text with (optional)
+    :return: decrypted text
     """
     if cipher is None:
         cipher = calc_cipher(text)
@@ -36,16 +75,3 @@ def decipher_text(text, cipher=None):
         translated_txt += letter_to_add
 
     return translated_txt
-
-
-def check_word_perc(wordlist, language):
-    is_word_list = [False] * len(wordlist)
-    for i in range(len(wordlist)):
-        word = wordlist[i]
-        response = requests.get("https://glosbe.com/gapi/translate?"
-                                "from={0}&dest={0}&format=json&phrase={1}".format(language, word))
-        if 'tuc' in response.json().keys():
-            is_word_list[i] = True
-
-    word_perc = float(sum(is_word_list)) / len(is_word_list)
-    return word_perc
