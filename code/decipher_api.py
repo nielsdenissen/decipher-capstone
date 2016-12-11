@@ -3,7 +3,7 @@ import json
 import logging
 from tornado import ioloop, web
 
-from . import decipher
+from . import decipher, translator
 
 
 class HtmlHandler(web.RequestHandler):
@@ -49,7 +49,7 @@ class DecipherHandler(web.RequestHandler):
 
         # Using the decipher class, decipher the text received
         cipher = decipher.calc_cipher(text=input_text, language=language)
-        output_text = decipher.decipher_text(text=input_text, cipher=cipher)
+        output_text = translator.decipher_text(text=input_text, cipher=cipher)
 
         result_dict = {'output_text': output_text}
         if return_cipher:
