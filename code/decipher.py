@@ -4,11 +4,32 @@ import itertools
 import time
 from code import validation, translator
 
+codes_tried = []
+
+
+def is_correct_code(text, language, code):
+    """
+    Code to check for validity. If it decodes to a good sentence, return True.
+
+    :param text: Text to try to decode
+    :param language: Language of text
+    :param code: Code that translate to a cipher
+    :return:
+    """
+    # Check if the code was already tried before
+    if code not in codes_tried:
+        cipher = translator.create_cipher(code)
+        decrypted_text = translator.decipher_text(text=text, cipher=cipher)
+
+        if validation.is_valid_sentence(sentence=decrypted_text, language=language):
+            return True
+
+    return False
+
 
 def caesar(text, language):
     """
-    Runs through all possible permutations with a time limit.
-    If nothing found returns None.
+    Checks if the deciphering follows a caesar code
 
     :param text: text to translate
     :param language: language of text
@@ -17,11 +38,10 @@ def caesar(text, language):
     # List all possible permutations
     for offset in range(26):
         # Check if it works
-        cipher = translator.create_cipher(string.ascii_lowercase[offset:] + string.ascii_lowercase[:offset])
-        decrypted_text = translator.decipher_text(text=text, cipher=cipher)
+        code = string.ascii_lowercase[offset:] + string.ascii_lowercase[:offset]
 
-        if validation.is_valid_sentence(sentence=decrypted_text, language=language):
-            return cipher
+        if is_correct_code(text, language, code):
+            return translator.create_cipher(code)
 
     return None
 
@@ -41,13 +61,10 @@ def all_permutations(text, language, max_time=30):
     start_time = time.time()
 
     # Run through all permutations
-    for permutation in all_ascii_permutations:
+    for code in all_ascii_permutations:
         # Check if it works
-        cipher = translator.create_cipher(permutation)
-        decrypted_text = translator.decipher_text(text=text, cipher=cipher)
-
-        if validation.is_valid_sentence(sentence=decrypted_text, language=language):
-            return cipher
+        if is_correct_code(text, language, code):
+            return translator.create_cipher(code)
         elif time.time() - start_time > max_time:
             return None
 
@@ -70,6 +87,3 @@ def calc_cipher(text, language):
         cipher = all_permutations(text=processed_txt, language=language, max_time=30)
 
     return cipher
-
-
-
