@@ -1,5 +1,7 @@
 import re
 import glob
+import pickle
+import os
 
 loaded_valid_word_lists = {}
 
@@ -8,39 +10,54 @@ def get_valid_word_list(language):
     """
     Load the word list for a specific language.
 
-    :param data_path: Path to the data folder
     :param language: language to get words for
     :return: list of words valid in language
     """
     if language in loaded_valid_word_lists.keys():
-        return loaded_valid_word_lists[language]
+        # Already loaded in memory
+        valid_word_list = loaded_valid_word_lists[language]
     else:
-        matches = list()
-        for data_path in ('data', '../data'):
-            filepart_to_search = data_path+"/{}wiktionary".format(language)
-            matches += list(glob.glob(filepart_to_search + '*'))
+        # Find correct data directory
+        correct_data_path = None
+        for path in ('data', '../data'):
+            if os.path.isdir(path):
+                correct_data_path = path
 
-        if len(matches) <= 0:
-            # No match, try to download file
-            raise FileNotFoundError("No file for this language")
+        pickle_file_name = "{}wiktionary.p".format(language)
+
+        matches_pickle = list(glob.glob("{0}/{1}".format(correct_data_path, pickle_file_name)))
+
+        if len(matches_pickle) > 0:
+            # There is a pickle file already, load that one
+            valid_word_list = pickle.load(open(matches_pickle[0], "rb"))
+
         else:
-            dict_file = matches[0]
+            matches = list(glob.glob("{0}/{1}wiktionary*".format(correct_data_path, language)))
 
-        with open(dict_file) as f:
-            file_lines = f.readlines()
+            if len(matches) <= 0:
+                # No match, try to download file
+                raise FileNotFoundError("No file for this language")
 
-        valid_word_list = set()
-        for entry in file_lines[1:]:
-            try:
-                if re.split(r'\t+', entry.strip())[0] == '0':
-                    valid_word = re.split(r'\t+', entry.strip())[1]
-                    valid_word_list.add(valid_word)
-            except IndexError:
-                # Issue parsing this line, ignore it
-                pass
+            with open(matches[0]) as f:
+                file_lines = f.readlines()
 
+            valid_word_list = set()
+            for entry in file_lines[1:]:
+                try:
+                    if re.split(r'\t+', entry.strip())[0] == '0':
+                        valid_word = re.split(r'\t+', entry.strip())[1]
+                        valid_word_list.add(valid_word)
+                except IndexError:
+                    # Issue parsing this line, ignore it
+                    pass
+
+            # Write to pickle file
+            pickle.dump(valid_word_list, open(correct_data_path + "/" + pickle_file_name, "wb"))
+
+        # Add to memory
         loaded_valid_word_lists[language] = valid_word_list
-        return valid_word_list
+
+    return valid_word_list
 
 
 def is_valid_sentence(sentence, language, acceptance_perc=0.8):
