@@ -1,25 +1,6 @@
 import unittest
 import string
-from code import decipher
-
-
-class TestDecipher(unittest.TestCase):
-    def test_decipher(self):
-        test_msg = "Klein testje, kijken of dit werkt."
-
-        translate_from = string.ascii_lowercase
-        translate_to = string.ascii_lowercase[1:] + string.ascii_lowercase[0]
-
-        test_cipher = {
-            l_from: l_to for l_from, l_to in zip(translate_from, translate_to)
-            }
-
-        encrypted_msg = decipher.decipher_text(test_msg, {v: k for k, v in test_cipher.items()})
-
-        self.assertEqual(
-            test_msg,
-            decipher.decipher_text(text=encrypted_msg, cipher=test_cipher)
-        )
+from code import decipher, translator
 
 
 class TestFindCypher(unittest.TestCase):
@@ -34,22 +15,19 @@ class TestFindCypher(unittest.TestCase):
 
         found_cipher = decipher.calc_cipher(text=test_msg, language='nl')
         self.assertDictEqual(test_cipher, found_cipher)
-        self.assertEqual(test_msg, decipher.decipher_text(text=test_msg, cipher=found_cipher))
+        self.assertEqual(test_msg, translator.decipher_text(text=test_msg, cipher=found_cipher))
 
     def test_simple_cipher_dutch(self):
         test_msg = self.dutch_msg
 
-        translate_from = string.ascii_lowercase
-        translate_to = string.ascii_lowercase[1:] + string.ascii_lowercase[0]
+        test_cipher = translator.create_cipher(
+            string.ascii_lowercase[1:] + string.ascii_lowercase[0])
 
-        test_cipher = {
-            l_from: l_to for l_from, l_to in zip(translate_from, translate_to)
-            }
-        encrypted_msg = decipher.decipher_text(test_msg, {v: k for k, v in test_cipher.items()})
+        encrypted_msg = translator.encipher_text(test_msg, test_cipher)
 
         found_cipher = decipher.calc_cipher(text=encrypted_msg, language='nl')
         self.assertDictEqual(test_cipher, found_cipher)
-        self.assertEqual(test_msg, decipher.decipher_text(text=encrypted_msg, cipher=found_cipher))
+        self.assertEqual(test_msg, translator.decipher_text(text=encrypted_msg, cipher=found_cipher))
 
 
 if __name__ == '__main__':
