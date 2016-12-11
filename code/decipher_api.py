@@ -41,9 +41,9 @@ class DecipherHandler(web.RequestHandler):
         """
         # Parse the arguments
         input_text = self.get_argument(name="text")
-        language = 'en'
-        return_cipher = self.get_argument(name="cipher", default=False) == 'True'
-        return_original = self.get_argument(name="original", default=False) == 'True'
+        language = self.get_argument(name="language")
+        return_cipher = self.get_argument(name="cipher", default=False) == 'on'
+        return_original = self.get_argument(name="original", default=False) == 'on'
 
         print("Received input text: {0}".format(input_text))
 

@@ -28,8 +28,10 @@
 <div id="contentPane" class="contentPane">
     <form action="decipher" method="get" id="form1">
       Text to translate: <input type="text" name="text"><br>
-      Return Original: <input type="text" name="cipher" value="False"><br>
-      Return Cipher: <input type="text" name="original" value="False"><br>
+        <input type="radio" name="language" value="en" checked> English<br>
+        <input type="radio" name="language" value="nl"> Nederlands<br>
+      Return Original: <input type="checkbox" name="original"><br>
+      Return Cipher: <input type="checkbox" name="cipher"><br>
     </form>
 
     <button type="submit" form="form1" value="Submit" formtarget="iframe_result">Submit</button>
