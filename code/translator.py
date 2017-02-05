@@ -1,7 +1,7 @@
 import string
 
 
-def create_cipher(translate_to):
+def create_cipher(translate_from, translate_to):
     """
     Function assumes a list of letters, each occuring once and constructs cipher from it by
     mapping the first letter to a (a -> translate[0]) etc...
@@ -9,7 +9,7 @@ def create_cipher(translate_to):
     :param translate_to: array of letters to translate to
     :return: cipher
     """
-    return {l_from: l_to for l_from, l_to in zip(string.ascii_lowercase, translate_to)}
+    return {l_from: l_to for l_from, l_to in zip(translate_from, translate_to)}
 
 
 def decipher_text(text, cipher):

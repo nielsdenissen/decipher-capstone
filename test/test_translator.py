@@ -11,14 +11,14 @@ class TestTranslator(unittest.TestCase):
         cipher_target = {
             l_from: l_to for l_from, l_to in zip(translate_from, translate_to)
             }
-        cipher_generated = translator.create_cipher(translate_to)
+        cipher_generated = translator.create_cipher(string.ascii_lowercase, translate_to)
 
         self.assertDictEqual(cipher_target, cipher_generated)
 
     def test_decipher(self):
         test_msg = "Klein testje, kijken of dit werkt."
 
-        test_cipher = translator.create_cipher(
+        test_cipher = translator.create_cipher(string.ascii_lowercase,
             string.ascii_lowercase[1:] + string.ascii_lowercase[0])
 
         encrypted_msg = translator.decipher_text(test_msg, {v: k for k, v in test_cipher.items()})
@@ -29,7 +29,7 @@ class TestTranslator(unittest.TestCase):
     def test_encipher(self):
         test_msg = "Klein testje, kijken of dit werkt."
 
-        test_cipher = translator.create_cipher(
+        test_cipher = translator.create_cipher(string.ascii_lowercase,
             string.ascii_lowercase[1:] + string.ascii_lowercase[0])
 
         encrypted_msg_truth = translator.decipher_text(test_msg,
