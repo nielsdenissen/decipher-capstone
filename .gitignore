@@ -4,3 +4,4 @@
 *__pycache__*
 *wiktionary*
 .ipynb_checkpoints
+.cache
