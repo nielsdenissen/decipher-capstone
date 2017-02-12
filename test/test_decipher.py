@@ -40,7 +40,7 @@ class TestFindCypher(unittest.TestCase):
         Test a cipher that maps letters to itself
         """
         # Create a cipher with each letter mapped to itself
-        test_cipher = translator.create_cipher(string.ascii_lowercase)
+        test_cipher = translator.create_cipher(string.ascii_lowercase, string.ascii_lowercase)
 
         self._generic_decryption_test(test_lang_msgs=self.test_lang_msgs,
                                       target_cipher=test_cipher)
@@ -51,7 +51,7 @@ class TestFindCypher(unittest.TestCase):
         """
         # Create a caesar cipher
         caesar_offset = 3
-        test_cipher = translator.create_cipher(
+        test_cipher = translator.create_cipher(string.ascii_lowercase,
             string.ascii_lowercase[caesar_offset:] + string.ascii_lowercase[:caesar_offset])
 
         self._generic_decryption_test(test_lang_msgs=self.test_lang_msgs,

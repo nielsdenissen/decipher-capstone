@@ -18,7 +18,7 @@ def is_correct_code(text, language, code):
     """
     # Check if the code was already tried before
     if code not in codes_tried:
-        cipher = translator.create_cipher(code)
+        cipher = translator.create_cipher(string.ascii_lowercase, code)
         decrypted_text = translator.decipher_text(text=text, cipher=cipher)
 
         if validation.is_valid_sentence(sentence=decrypted_text, language=language):
@@ -41,7 +41,7 @@ def caesar(text, language):
         code = string.ascii_lowercase[offset:] + string.ascii_lowercase[:offset]
 
         if is_correct_code(text, language, code):
-            return translator.create_cipher(code)
+            return translator.create_cipher(string.ascii_lowercase, code)
 
     return None
 
@@ -64,7 +64,7 @@ def all_permutations(text, language, max_time=30):
     for code in all_ascii_permutations:
         # Check if it works
         if is_correct_code(text, language, code):
-            return translator.create_cipher(code)
+            return translator.create_cipher(string.ascii_lowercase, code)
         elif time.time() - start_time > max_time:
             return None
 
