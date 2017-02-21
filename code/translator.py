@@ -22,9 +22,9 @@ def decipher_text(text, cipher):
     """
     translated_txt = ""
     for letter in text:
-        if letter in string.ascii_lowercase:
+        if letter in string.ascii_lowercase and letter in cipher.keys():
             letter_to_add = cipher[letter]
-        elif letter in string.ascii_uppercase:
+        elif letter in string.ascii_uppercase and letter.lower() in cipher.keys():
             letter_to_add = cipher[letter.lower()].upper()
         else:
             letter_to_add = letter
