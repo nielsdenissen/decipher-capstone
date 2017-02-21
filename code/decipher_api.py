@@ -3,7 +3,8 @@ import json
 import logging
 from tornado import ioloop, web
 
-from . import decipher, translator
+from code.decipher.solver import Solver
+from code import translator
 
 
 class HtmlHandler(web.RequestHandler):
@@ -48,7 +49,8 @@ class DecipherHandler(web.RequestHandler):
         print("Received input text: {0}".format(input_text))
 
         # Using the decipher class, decipher the text received
-        cipher = decipher.calc_cipher(text=input_text, language=language)
+        solver = Solver(language=language)
+        cipher = solver.solve(msg_enc=input_text)
         output_text = translator.decipher_text(text=input_text, cipher=cipher)
 
         result_dict = {'output_text': output_text}
@@ -97,3 +99,8 @@ def init(port):
     print("Run the application on port {0}".format(port))
     app.listen(port=port, address="0.0.0.0")
     mainloop.start()
+
+
+if __name__ == '__main__':
+    print("--- Initialize the application. ---")
+    init(8080)

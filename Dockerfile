@@ -21,4 +21,4 @@ ADD code /decipher_capstone/code
 ADD data /decipher_capstone/data
 
 # At runtime, run the api
-CMD python -m code.main
+CMD python -m code.decipher_api

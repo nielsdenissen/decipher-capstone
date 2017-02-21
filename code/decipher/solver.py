@@ -1,3 +1,5 @@
+import string
+
 from code.decipher.functions import get_encoded_words_from_msg
 from code.decipher.possibility_generator import PossibilityGenerator
 
@@ -6,7 +8,7 @@ class Solver(object):
     _pg = None
     _character_set = None
 
-    def __init__(self, character_set, language):
+    def __init__(self, language, character_set=string.ascii_lowercase):
         self._character_set = character_set
         self._pg = PossibilityGenerator(character_set=character_set, language=language)
 

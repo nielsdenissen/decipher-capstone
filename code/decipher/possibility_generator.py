@@ -1,10 +1,69 @@
 import string
 import pickle
 import re
+import glob
+import os
 from collections import Counter
 
 from code.translator import decipher_text, create_cipher
 from code.decipher.functions import process_word
+
+# Cache for valid_word_lists
+loaded_valid_word_lists = {}
+
+
+def get_valid_word_list(language):
+    """
+    Load the word list for a specific language.
+
+    :param language: language to get words for
+    :return: list of words valid in language
+    """
+    if language in loaded_valid_word_lists.keys():
+        # Already loaded in memory
+        valid_word_list = loaded_valid_word_lists[language]
+    else:
+        # Find correct data directory
+        correct_data_path = None
+        for path in ('data', '../data'):
+            if os.path.isdir(path):
+                correct_data_path = path
+
+        pickle_file_name = "{}wiktionary.p".format(language)
+
+        matches_pickle = list(glob.glob("{0}/{1}".format(correct_data_path, pickle_file_name)))
+
+        if len(matches_pickle) > 0:
+            # There is a pickle file already, load that one
+            valid_word_list = pickle.load(open(matches_pickle[0], "rb"))
+
+        else:
+            matches = list(glob.glob("{0}/{1}wiktionary*".format(correct_data_path, language)))
+
+            if len(matches) <= 0:
+                # No match, try to download file
+                raise FileNotFoundError("No file for this language")
+
+            with open(matches[0]) as f:
+                file_lines = f.readlines()
+
+            valid_word_list = set()
+            for entry in file_lines[1:]:
+                try:
+                    if re.split(r'\t+', entry.strip())[0] == '0':
+                        valid_word = re.split(r'\t+', entry.strip())[1]
+                        valid_word_list.add(valid_word)
+                except IndexError:
+                    # Issue parsing this line, ignore it
+                    pass
+
+            # Write to pickle file
+            pickle.dump(valid_word_list, open(correct_data_path + "/" + pickle_file_name, "wb"))
+
+        # Add to memory
+        loaded_valid_word_lists[language] = valid_word_list
+
+    return valid_word_list
 
 
 class PossibilityGenerator(object):
@@ -25,9 +84,7 @@ class PossibilityGenerator(object):
 
     def _load_language_words(self, language):
         # Load the words of the language and process them into a dict
-        words = pickle.load(
-            open("../../data/{}wiktionary.p".format(language),
-                 "rb"))
+        words = get_valid_word_list(language=language)
 
         self._word_dictionary = dict()
         for word in words:
