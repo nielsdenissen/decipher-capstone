@@ -68,7 +68,7 @@ class Solver(object):
             if len(word_set) >= min_set_size:
                 yield char, word_set
 
-    def solve(self, msg_enc):
+    def solve(self, msg_enc, max_complexity=1e12):
         word_enc_possibility_dict = dict()
 
         for word_enc in get_encoded_words_from_msg(msg_enc=msg_enc,
@@ -88,7 +88,7 @@ class Solver(object):
 
             gen_subsets = self._generate_subset_words_per_letter(word_enc_list_ordered,
                                                                  cipher_already_fix,
-                                                                 max_complexity=1e12,
+                                                                 max_complexity=max_complexity,
                                                                  min_set_size=min_set_size)
             for used_letter, used_set in gen_subsets:
                 if used_letter not in cipher_already_fix.keys():

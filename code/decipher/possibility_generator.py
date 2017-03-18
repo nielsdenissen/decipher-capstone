@@ -4,6 +4,7 @@ import re
 import glob
 import os
 from collections import Counter
+from subprocess import call
 
 from code.translator import decipher_text, create_cipher
 from code.decipher.functions import process_word
@@ -12,7 +13,7 @@ from code.decipher.functions import process_word
 loaded_valid_word_lists = {}
 
 
-def get_valid_word_list(language):
+def get_valid_word_list(language, character_set):
     """
     Load the word list for a specific language.
 
@@ -42,7 +43,12 @@ def get_valid_word_list(language):
 
             if len(matches) <= 0:
                 # No match, try to download file
-                raise FileNotFoundError("No file for this language")
+                call(["/decipher_capstone/data/download_wordlist.sh", str(language), str("/decipher_capstone/data")])
+                matches = list(glob.glob("{0}/{1}wiktionary*".format(correct_data_path, language)))
+
+                # If still not there, raise error
+                if len(matches) <= 0:
+                    raise FileNotFoundError("No file for this language")
 
             with open(matches[0]) as f:
                 file_lines = f.readlines()
@@ -52,7 +58,10 @@ def get_valid_word_list(language):
                 try:
                     if re.split(r'\t+', entry.strip())[0] == '0':
                         valid_word = re.split(r'\t+', entry.strip())[1]
-                        valid_word_list.add(valid_word)
+                        processed_word = process_word(valid_word, character_set)
+                        if processed_word is not None:
+                            valid_word_list.add(processed_word)
+
                 except IndexError:
                     # Issue parsing this line, ignore it
                     pass
@@ -76,25 +85,22 @@ class PossibilityGenerator(object):
         """
         self._character_set = character_set
 
-        if language not in ['en', 'nl']:
-            raise NotImplementedError(
-                'Language {} not supported'.format(language))
+        # if language not in ['en', 'nl']:
+        #     raise NotImplementedError(
+        #         'Language {} not supported'.format(language))
 
         self._load_language_words(language)
 
     def _load_language_words(self, language):
         # Load the words of the language and process them into a dict
-        words = get_valid_word_list(language=language)
+        words = get_valid_word_list(language=language, character_set=self._character_set)
 
         self._word_dictionary = dict()
         for word in words:
-            processed_word = process_word(word, self._character_set)
-            if processed_word is not None:
-                try:
-                    self._word_dictionary[self._get_key_for_word(processed_word)].append(
-                        processed_word)
-                except KeyError:
-                    self._word_dictionary[self._get_key_for_word(processed_word)] = [processed_word]
+            try:
+                self._word_dictionary[self._get_key_for_word(word)].append(word)
+            except KeyError:
+                self._word_dictionary[self._get_key_for_word(word)] = [word]
 
     def _get_key_for_word(self, word):
         # Determine duplicates
