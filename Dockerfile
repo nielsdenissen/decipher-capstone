@@ -5,7 +5,9 @@ MAINTAINER Niels Denissen <nielsdenissen@gmail.com>
 # Update apt-get and install some packages to support all python requirements
 RUN apt-get update && apt-get install -y \
 	libpq-dev \
-	gcc
+	gcc \
+	curl \
+	gzip
 
 # Add the configuration to the container
 ADD conf /decipher_capstone/conf
@@ -17,8 +19,9 @@ WORKDIR /decipher_capstone
 RUN pip install -r conf/requirements.txt
 
 # Add the application to the container
-ADD code /decipher_capstone/code
 ADD data /decipher_capstone/data
+RUN chmod +x /decipher_capstone/data/download_wordlist.sh
+ADD code /decipher_capstone/code
 
 # At runtime, run the api
-CMD python -m code.main
+CMD python -m code.decipher_api
