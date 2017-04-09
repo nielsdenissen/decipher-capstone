@@ -21,7 +21,14 @@ RUN pip install -r conf/requirements.txt
 # Add the application to the container
 ADD data /decipher_capstone/data
 RUN chmod +x /decipher_capstone/data/download_wordlist.sh
+
+# Finally add the application code
 ADD code /decipher_capstone/code
+
+# Prepare / pre-train the wordlist for some languages
+RUN python -m code.decipher.possibility_generator -l en
+RUN python -m code.decipher.possibility_generator -l nl
+RUN python -m code.decipher.possibility_generator -l de
 
 # At runtime, run the api
 CMD python -m code.decipher_api

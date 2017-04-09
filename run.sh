@@ -1,4 +1,4 @@
-echo Removing existing docker images:
+echo Removing existing running docker containers:
 
 docker rm -f $(docker ps -a | grep decipher-capstone | awk -F" " '{print $1}')
 
