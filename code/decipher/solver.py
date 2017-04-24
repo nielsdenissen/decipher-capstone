@@ -1,4 +1,5 @@
 import string
+import logging
 
 from code.decipher.functions import get_encoded_words_from_msg
 from code.decipher.possibility_generator import PossibilityGenerator
@@ -68,13 +69,30 @@ class Solver(object):
             if len(word_set) >= min_set_size:
                 yield char, word_set
 
-    def solve(self, msg_enc, max_complexity=1e12):
+    def solve(self, msg_enc, max_complexity=1e11):
+        """
+        Decode the encode message.
+
+        :param msg_enc: The encoded message
+        :param max_complexity: Maximum complexity used in searching, reducing this will speed up
+        the program but make it less accurate
+        :return: Decoded message
+        """
         word_enc_possibility_dict = dict()
 
         for word_enc in get_encoded_words_from_msg(msg_enc=msg_enc,
                                                    character_set=self._character_set):
-            possibilities = self._pg.get_possible_words(word_enc)
-            word_enc_possibility_dict[word_enc] = possibilities
+            word_enc_possibility_dict[word_enc] = self._pg.get_possible_words(word_enc)
+
+        # Check if words are already in correct language
+        already_correct = 0
+        for key, values in word_enc_possibility_dict.items():
+            if key in values:
+                already_correct += 1
+
+        if already_correct / len(word_enc_possibility_dict.keys()) > 0.8:
+            # No translation needed
+            return {c: c for c in self._character_set}
 
         # Sort the word_encoded list based on possibilities
         word_enc_list_ordered = sorted(word_enc_possibility_dict,
@@ -84,7 +102,7 @@ class Solver(object):
         cipher_already_fix = {}
         min_set_size = 10
         while min_set_size > 0:
-            print("---- Start deciphering with minimum set of {}".format(min_set_size))
+            logging.debug("---- Start deciphering with minimum set of {}".format(min_set_size))
 
             gen_subsets = self._generate_subset_words_per_letter(word_enc_list_ordered,
                                                                  cipher_already_fix,
@@ -92,29 +110,28 @@ class Solver(object):
                                                                  min_set_size=min_set_size)
             for used_letter, used_set in gen_subsets:
                 if used_letter not in cipher_already_fix.keys():
-                    print("\t-- Letter {}".format(used_letter))
+                    logging.debug("\t-- Letter {}".format(used_letter))
                     found_cipher, correct_words = self._get_best_cipher_and_words_correct(used_set,
                                                                                           cipher_already_fix)
                     correctly_translated = correct_words / len(used_set)
 
                     try:
                         if found_cipher[used_letter] in cipher_already_fix.values():
-                            print(
+                            logging.debug(
                                 "\t\t!!!! PROBLEM: this letter ({}) has been used to translate to already".format(
                                     found_cipher[used_letter]))
                         else:
                             cipher_already_fix[used_letter] = found_cipher[used_letter]
 
-                            print("\t\tDecided for {0}:{1}".format(used_letter,
+                            logging.debug("\t\tDecided for {0}:{1}".format(used_letter,
                                                                    found_cipher[used_letter]))
-                            print("\t\tNumber of correctly translated words: {0}/{1} ({2}%)".format(
+                            logging.debug("\t\tNumber of correctly translated words: {0}/{1} ({2}%)".format(
                                 correct_words, len(used_set), int(100 * correctly_translated)))
                     except KeyError:
-                        print(
+                        logging.debug(
                             "\t\tWe'd hoped to find this one, but couldnt: {}".format(used_letter))
 
             min_set_size -= 1
 
-        print()
-        print("Number of keys found: {}".format(len(cipher_already_fix)))
+        logging.debug("Number of keys found: {}".format(len(cipher_already_fix)))
         return cipher_already_fix

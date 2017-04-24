@@ -31,26 +31,6 @@ class TestSolver(unittest.TestCase):
         self.solver_english = Solver(language='en')
         self.solver_dutch = Solver(language='nl')
 
-    # def test_solve_dutch(self):
-    #     msg = "test bla test dit gezelligheid tijdelijk vrachtwagen bessensap"
-    #     cipher_enc = create_random_cipher(self._character_set)
-    #     msg_enc = encipher_text(msg, cipher_enc)
-    #
-    #     cipher = self.solver_dutch.solve(msg_enc=msg_enc)
-    #     msg_dec = decipher_text(msg_enc, cipher=cipher)
-    #     print(msg_dec)
-    #     self.assertEqual(msg, msg_dec)
-    #
-    # def test_solve_english(self):
-    #     msg = "test this is english congress keyboard money assemblymembers tephrocorrelation"
-    #     cipher_enc = create_random_cipher(self._character_set)
-    #     msg_enc = encipher_text(msg, cipher_enc)
-    #
-    #     cipher = self.solver_english.solve(msg_enc=msg_enc)
-    #     msg_dec = decipher_text(msg_enc, cipher=cipher)
-    #     print(msg_dec)
-    #     self.assertEqual(msg, msg_dec)
-
     def _generic_decryption_test(self, test_lang_msgs, target_cipher):
         """
         Generic test whether decryption works as expected. Tests whether deciphering the
