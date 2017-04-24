@@ -68,13 +68,20 @@ class Solver(object):
             if len(word_set) >= min_set_size:
                 yield char, word_set
 
-    def solve(self, msg_enc, max_complexity=1e12):
+    def solve(self, msg_enc, max_complexity=1e11):
+        """
+        Decode the encode message.
+
+        :param msg_enc: The encoded message
+        :param max_complexity: Maximum complexity used in searching, reducing this will speed up
+        the program but make it less accurate
+        :return: Decoded message
+        """
         word_enc_possibility_dict = dict()
 
         for word_enc in get_encoded_words_from_msg(msg_enc=msg_enc,
                                                    character_set=self._character_set):
-            possibilities = self._pg.get_possible_words(word_enc)
-            word_enc_possibility_dict[word_enc] = possibilities
+            word_enc_possibility_dict[word_enc] = self._pg.get_possible_words(word_enc)
 
         # Sort the word_encoded list based on possibilities
         word_enc_list_ordered = sorted(word_enc_possibility_dict,

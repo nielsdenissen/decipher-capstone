@@ -140,29 +140,33 @@ class PossibilityGenerator(object):
 
     def get_possible_words(self, word_enc, cipher={}):
         processed_word = process_word(word_enc, self._character_set)
-        possible_words = self._word_dictionary[self._get_key_for_word(processed_word)]
-        cipher_copy = cipher.copy()
+        try:
+            possible_words = self._word_dictionary[self._get_key_for_word(processed_word)]
+            cipher_copy = cipher.copy()
 
-        # Determine what to fill cipher with
-        # Replace this cipher with a negation of the already known values
-        # Those values cannot become the result of the cipher anymore
-        if len(cipher.values()) <= 0:
-            cipher_fill = '.'
-        else:
-            cipher_fill = '[^' + ''.join(cipher.values()) + ']'
+            # Determine what to fill cipher with
+            # Replace this cipher with a negation of the already known values
+            # Those values cannot become the result of the cipher anymore
+            if len(cipher.values()) <= 0:
+                cipher_fill = '.'
+            else:
+                cipher_fill = '[^' + ''.join(cipher.values()) + ']'
 
-        # Fill cipher with missing keys
-        for c in list(self._character_set):
-            if c not in cipher_copy.keys():
-                cipher_copy[c] = cipher_fill
+            # Fill cipher with missing keys
+            for c in list(self._character_set):
+                if c not in cipher_copy.keys():
+                    cipher_copy[c] = cipher_fill
 
-        regex_string = decipher_text(processed_word, cipher_copy)
+            regex_string = decipher_text(processed_word, cipher_copy)
 
-        regex = re.compile(regex_string)
+            regex = re.compile(regex_string)
 
-        # Filter out possibilities with current cipher keys
-        possible_words = list(filter(regex.search, possible_words))
-        return possible_words
+            # Filter out possibilities with current cipher keys
+            possible_words = list(filter(regex.search, possible_words))
+            return possible_words
+        except KeyError:
+            print("No possible words found for: {}".format(word_enc))
+            return []
 
     def generate_possible_words(self, word_enc, cipher={}):
         processed_word = process_word(word_enc, self._character_set)
