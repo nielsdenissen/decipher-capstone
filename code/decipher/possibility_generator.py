@@ -5,6 +5,7 @@ import glob
 import os
 import argparse
 import sys
+import logging
 from collections import Counter
 from subprocess import call
 
@@ -102,10 +103,6 @@ class PossibilityGenerator(object):
         """
         self._character_set = character_set
 
-        # if language not in ['en', 'nl']:
-        #     raise NotImplementedError(
-        #         'Language {} not supported'.format(language))
-
         self._load_language_words(language)
 
     def _load_language_words(self, language):
@@ -165,7 +162,7 @@ class PossibilityGenerator(object):
             possible_words = list(filter(regex.search, possible_words))
             return possible_words
         except KeyError:
-            print("No possible words found for: {}".format(word_enc))
+            logging.error("No possible words found for: {}".format(word_enc))
             return []
 
     def generate_possible_words(self, word_enc, cipher={}):
@@ -176,6 +173,7 @@ class PossibilityGenerator(object):
             cipher_for_this = create_cipher(processed_word, word_dec)
             yield word_dec, {**cipher_for_this, **cipher}
 
+
 if __name__ == '__main__':
     # Parse the arguments given
     parser = argparse.ArgumentParser(description='Pre load wordlist')
@@ -184,9 +182,9 @@ if __name__ == '__main__':
 
     # Check if any of them are not given
     if args.language is None:
-        print('Not all arguments for script given')
-        print(parser.print_help())
+        logging.error('Not all arguments for script given')
+        logging.error(parser.print_help())
         sys.exit(1)
 
-    print("--- Preload the wordlist for language: {} ---".format(args.language))
+    logging.info("--- Preload the wordlist for language: {} ---".format(args.language))
     prepare_wordlist(language=args.language, character_set=character_set_global)

@@ -21,7 +21,7 @@ class HtmlHandler(web.RequestHandler):
 
         :return: index.html
         """
-        print("New frontend page opened")
+        logging.info("New frontend page opened")
         return self.render("static/index.html")
 
 
@@ -49,7 +49,11 @@ class DecipherHandler(web.RequestHandler):
         print("Received input text: {0}".format(input_text))
 
         # Using the decipher class, decipher the text received
-        solver = Solver(language=language)
+        try:
+            solver = self.application.solvers[language]
+        except KeyError:
+            solver = Solver(language=language)
+
         cipher = solver.solve(msg_enc=input_text)
         output_text = translator.decipher_text(text=input_text, cipher=cipher)
 
@@ -84,23 +88,42 @@ def init(port):
     :param port: port to run app on
     :return: -
     """
-    # Disable the default loggers for tornado:
-    logging.getLogger('tornado.access').addHandler(logging.NullHandler())
-    logging.getLogger('tornado.application').addHandler(logging.NullHandler())
-    logging.getLogger('tornado.general').addHandler(logging.NullHandler())
-
     # Start the tornado application and broadcast over the specified port:
     app = make_app()
+    app.solvers = dict()
+
+    to_preload = ('en', 'nl', 'de')
+
+    logging.info("Start preloading languages: {}".format(to_preload))
+    count = 1
+    for l in to_preload:
+        logging.info("- loading ({}/{}): {}".format(count, len(to_preload), l))
+        app.solvers[l] = Solver(language=l)
+        count += 1
 
     # Create instance of the asynchronous loop
     mainloop = ioloop.IOLoop.instance()
 
     # Start the tornado app
-    print("Run the application on port {0}".format(port))
+    logging.info("Run the application on port {0}".format(port))
     app.listen(port=port, address="0.0.0.0")
     mainloop.start()
 
 
 if __name__ == '__main__':
-    print("--- Initialize the application. ---")
+    # Disable the default loggers for tornado:
+    logging.getLogger('tornado.access').addHandler(logging.NullHandler())
+    logging.getLogger('tornado.application').addHandler(logging.NullHandler())
+    logging.getLogger('tornado.general').addHandler(logging.NullHandler())
+
+    log_formatter = logging.Formatter("%(asctime)s %(threadName)s %(levelname)s %(message)s")
+    root_logger = logging.getLogger()
+
+    root_logger.setLevel(logging.DEBUG)
+
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(log_formatter)
+    root_logger.addHandler(console_handler)
+
+    logging.info("--- Initialize the application. ---")
     init(8080)
