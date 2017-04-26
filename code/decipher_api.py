@@ -48,13 +48,23 @@ class DecipherHandler(web.RequestHandler):
 
         print("Received input text: {0}".format(input_text))
 
-        # Using the decipher class, decipher the text received
-        try:
-            solver = self.application.solvers[language]
-        except KeyError:
-            solver = Solver(language=language)
+        if language == 'detect':
+            cipher = None
+            perc_correct = -1
 
-        cipher, perc_correct = solver.solve(msg_enc=input_text)
+            for l in ('en', 'nl', 'de'):
+                cipher_new, perc_correct_new = self.application.solvers[l].solve(msg_enc=input_text)
+                if perc_correct_new > perc_correct:
+                    perc_correct = perc_correct_new
+                    cipher = cipher_new
+        else:
+            # Using the decipher class, decipher the text received
+            try:
+                solver = self.application.solvers[language]
+            except KeyError:
+                solver = Solver(language=language)
+            cipher, perc_correct = solver.solve(msg_enc=input_text)
+
         output_text = translator.decipher_text(text=input_text, cipher=cipher)
 
         result_dict = {'output_text': output_text}

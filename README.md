@@ -31,7 +31,8 @@ You can visit a small frontend on http://localhost:8080/
 Also there's an API endpoint available where you need to fill the following arguments:
 - text: text you'd like deciphered
 - language: language code this text is written in (English=en, Dutch=nl, German=de, etc..)
-
+    - You can also use `detect` as a language causing the program to try to detect language (this is a bit slower though)
+    
 Address: http://localhost:8080/decipher?language=...&text=... 
 
 
@@ -71,12 +72,11 @@ Example: The word **logging** would result in key `(7, 5, [(2,3,6)])`
     distributed over the encoded words and these words have a limited set of possibilities.
     Picking a letter that occurs in a lot of words makes the possibilities smaller. We'll start with the
     most promising letter:
-    
-    1. When we have an appropriate letter, we'll start checking the possibilities for this letter:
         1. Pick an encoding for this letter and recursively pick the next most promising letter in this set.
         1. Set the temporary cipher appropriately intermittently. (Example: ieow -> task, cipher: {i:t, e:a, o:s, w:k})
         This process will lead to quite some branches where words couldn't be translated due to an invalid
-        cipher. We'll backtrack then.
+        cipher up until that point. Each branch is ranked to how many words could be translated in it.
+        1. We'll pick the branch with the highest score
         1. Continue this with the next possible deciphering of a letter and use the cipher that generated the highest
         score (so the most appropriately deciphered words).
     1. Grab the next set and continue (we can use the cipher so far to heavily reduce possibilities)
