@@ -65,15 +65,19 @@ Example: The word **logging** would result in key `(7, 5, [(2,3,6)])`
 2. Otherwise we're trying to decipher it:
     1. First we order the set of words based on the number of possibilities they have from least to most.
     1. Then we pick a set with the least amount of possibilities (top of list). If the number of
-    combinations for this set of words is too large (no. possibilities word 1 * no. possibilities word 2 * ...), 
-    we'll lower the set size. This is to prevent the following search to grow too large.
-    1. When we have an appropriate set, we'll start deciphering the words in this set:
-        1. Pick the first word of the set
-        1. Use the first possible decoding of this word and set the temporary cipher appropriately.
-        (Example: ieow -> task, cipher: {i:t, e:a, o:s, w:k})
-        1. Using this cipher the number of possibilities for following words is reduced.
-        Take the next word in the set and keep track of the number of correct words we found using this cipher.
-        1. Continue this with the next possible deciphering of a word and use the cipher that generated the highest
+        combinations for this set of words is too large (no. possibilities word 1 * no. possibilities word 2 * ...), 
+        we'll lower the set size. This is to prevent the following search to grow too large.
+    1. Now we're going to translate one letter at a time. The philosophy behind this is that letters are
+    distributed over the encoded words and these words have a limited set of possibilities.
+    Picking a letter that occurs in a lot of words makes the possibilities smaller. We'll start with the
+    most promising letter:
+    
+    1. When we have an appropriate letter, we'll start checking the possibilities for this letter:
+        1. Pick an encoding for this letter and recursively pick the next most promising letter in this set.
+        1. Set the temporary cipher appropriately intermittently. (Example: ieow -> task, cipher: {i:t, e:a, o:s, w:k})
+        This process will lead to quite some branches where words couldn't be translated due to an invalid
+        cipher. We'll backtrack then.
+        1. Continue this with the next possible deciphering of a letter and use the cipher that generated the highest
         score (so the most appropriately deciphered words).
     1. Grab the next set and continue (we can use the cipher so far to heavily reduce possibilities)
 3. Finally return the found cipher and the deciphered text
