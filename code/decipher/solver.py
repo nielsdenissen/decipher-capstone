@@ -6,10 +6,15 @@ from code.decipher.possibility_generator import PossibilityGenerator
 
 
 class Solver(object):
+    language = None
     _pg = None
     _character_set = None
 
-    def __init__(self, language, character_set=string.ascii_lowercase):
+    def __init__(self, language, character_set=string.ascii_lowercase, logger=logging.getLogger()):
+        self.logger = logger
+        self.logger.info('Initialise solver for language: {}'.format(language))
+
+        self.language = language
         self._character_set = character_set
         self._pg = PossibilityGenerator(character_set=character_set, language=language)
 
@@ -92,17 +97,20 @@ class Solver(object):
 
         if already_correct / len(word_enc_possibility_dict.keys()) > 0.8:
             # No translation needed
-            return {c: c for c in self._character_set}
+            return {c: c for c in self._character_set}, already_correct / len(word_enc_possibility_dict.keys())
 
         # Sort the word_encoded list based on possibilities
         word_enc_list_ordered = sorted(word_enc_possibility_dict,
                                        key=lambda k: len(word_enc_possibility_dict[k]),
                                        reverse=False)
 
+        correct_word_count = 0
+        total_word_count = 0
+
         cipher_already_fix = {}
         min_set_size = 10
         while min_set_size > 0:
-            logging.debug("---- Start deciphering with minimum set of {}".format(min_set_size))
+            self.logger.debug("---- Start deciphering with minimum set of {}".format(min_set_size))
 
             gen_subsets = self._generate_subset_words_per_letter(word_enc_list_ordered,
                                                                  cipher_already_fix,
@@ -110,28 +118,32 @@ class Solver(object):
                                                                  min_set_size=min_set_size)
             for used_letter, used_set in gen_subsets:
                 if used_letter not in cipher_already_fix.keys():
-                    logging.debug("\t-- Letter {}".format(used_letter))
+                    self.logger.debug("\t-- Letter {}".format(used_letter))
                     found_cipher, correct_words = self._get_best_cipher_and_words_correct(used_set,
                                                                                           cipher_already_fix)
                     correctly_translated = correct_words / len(used_set)
+                    correct_word_count += correct_words
+                    total_word_count += len(used_set)
 
                     try:
                         if found_cipher[used_letter] in cipher_already_fix.values():
-                            logging.debug(
+                            self.logger.debug(
                                 "\t\t!!!! PROBLEM: this letter ({}) has been used to translate to already".format(
                                     found_cipher[used_letter]))
                         else:
                             cipher_already_fix[used_letter] = found_cipher[used_letter]
 
-                            logging.debug("\t\tDecided for {0}:{1}".format(used_letter,
+                            self.logger.debug("\t\tDecided for {0}:{1}".format(used_letter,
                                                                    found_cipher[used_letter]))
-                            logging.debug("\t\tNumber of correctly translated words: {0}/{1} ({2}%)".format(
+                            self.logger.debug("\t\tNumber of correctly translated words: {0}/{1} ({2}%)".format(
                                 correct_words, len(used_set), int(100 * correctly_translated)))
                     except KeyError:
-                        logging.debug(
+                        self.logger.debug(
                             "\t\tWe'd hoped to find this one, but couldnt: {}".format(used_letter))
 
             min_set_size -= 1
 
-        logging.debug("Number of keys found: {}".format(len(cipher_already_fix)))
-        return cipher_already_fix
+        self.logger.debug("Number of keys found: {}".format(len(cipher_already_fix)))
+        perc_correct = correct_word_count / total_word_count
+        self.logger.info("Correctly translated for language {}: {}".format(self.language, perc_correct))
+        return cipher_already_fix, perc_correct

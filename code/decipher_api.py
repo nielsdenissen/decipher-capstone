@@ -54,7 +54,7 @@ class DecipherHandler(web.RequestHandler):
         except KeyError:
             solver = Solver(language=language)
 
-        cipher = solver.solve(msg_enc=input_text)
+        cipher, perc_correct = solver.solve(msg_enc=input_text)
         output_text = translator.decipher_text(text=input_text, cipher=cipher)
 
         result_dict = {'output_text': output_text}
@@ -98,7 +98,7 @@ def init(port):
     count = 1
     for l in to_preload:
         logging.info("- loading ({}/{}): {}".format(count, len(to_preload), l))
-        app.solvers[l] = Solver(language=l)
+        app.solvers[l] = Solver(language=l, logger=root_logger)
         count += 1
 
     # Create instance of the asynchronous loop

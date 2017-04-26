@@ -52,7 +52,7 @@ class TestSolver(unittest.TestCase):
             else:
                 self.assertTrue(False)
 
-            found_cipher = solver.solve(msg_enc=msg_enc)
+            found_cipher, perc_correct = solver.solve(msg_enc=msg_enc)
             found_msg = decipher_text(text=msg_enc, cipher=found_cipher)
             print(found_msg)
 
