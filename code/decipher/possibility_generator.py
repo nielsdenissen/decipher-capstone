@@ -24,7 +24,7 @@ def prepare_wordlist(language, character_set):
 
     :param language: Language to be used
     :param character_set: character set to be used
-    :return:
+    :return: list of words for the given language with only character set filtered out
     """
     # Find correct data directory
     correct_data_path = None
@@ -99,13 +99,22 @@ class PossibilityGenerator(object):
 
     def __init__(self, character_set, language):
         """
-        Get the character frequency for a given language
+        Initialize the possibility generator for a specific language.
+        This will load in all word possibilities structured in a dictionary.
+        
+        :param character_set: Character set to use
+        :param language: Language
         """
         self._character_set = character_set
-
         self._load_language_words(language)
 
     def _load_language_words(self, language):
+        """
+        Build the word dictionary for this language.
+        
+        :param language: Language
+        :return: -
+        """
         # Load the words of the language and process them into a dict
         words = get_valid_word_list(language=language, character_set=self._character_set)
 
@@ -117,6 +126,12 @@ class PossibilityGenerator(object):
                 self._word_dictionary[self._get_key_for_word(word)] = [word]
 
     def _get_key_for_word(self, word):
+        """
+        Get the key for a word to be inserted in the dictionary.
+        
+        :param word: word to include
+        :return: key for that word
+        """
         # Determine duplicates
         duplicate_indices = []
         for letter, letter_count in Counter(word).items():
@@ -136,6 +151,13 @@ class PossibilityGenerator(object):
         return len(word), len(Counter(word)), duplicate_indices
 
     def get_possible_words(self, word_enc, cipher={}):
+        """
+        Based on an already existing cipher, retrieve the possible decodings for a given word.
+        
+        :param word_enc: Encoded word
+        :param cipher: Cipher found so far
+        :return: Possible decodings
+        """
         processed_word = process_word(word_enc, self._character_set)
         try:
             possible_words = self._word_dictionary[self._get_key_for_word(processed_word)]
@@ -166,6 +188,14 @@ class PossibilityGenerator(object):
             return []
 
     def generate_possible_words(self, word_enc, cipher={}):
+        """
+        A generator for the possibilities of an encoded word.
+        This function will also determine the accompanying cipher and return it.
+        
+        :param word_enc: Encoded word
+        :param cipher: Cipher used so far
+        :return: generator for possible decodings along with the cipher for that
+        """
         processed_word = process_word(word_enc, self._character_set)
         possible_words = self.get_possible_words(processed_word, cipher)
 

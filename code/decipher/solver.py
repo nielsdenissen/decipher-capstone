@@ -11,6 +11,13 @@ class Solver(object):
     _character_set = None
 
     def __init__(self, language, character_set=string.ascii_lowercase, logger=logging.getLogger()):
+        """
+        Setup the solver by initializing a possibility generator.
+        
+        :param language: Language to be used
+        :param character_set: Character set
+        :param logger: Logger
+        """
         self.logger = logger
         self.logger.info('Initialise solver for language: {}'.format(language))
 
@@ -19,6 +26,13 @@ class Solver(object):
         self._pg = PossibilityGenerator(character_set=character_set, language=language)
 
     def _calc_complexity(self, word_list, cipher={}):
+        """
+        Calculate the complexity for a list of words.
+        
+        :param word_list: word list
+        :param cipher: cipher used so far
+        :return: complexity score
+        """
         complexity = 1
         for w in word_list:
             complexity *= len(self._pg.get_possible_words(w, cipher))
@@ -26,6 +40,15 @@ class Solver(object):
         return complexity
 
     def _get_best_cipher_and_words_correct(self, ordered_list_words_enc, cipher_so_far={}):
+        """
+        Recursively walk through the list of words, looping through the possibilities for each of them and keeping
+        track of the total amount of correctly translated words. The cipher with the best_score (most words found) 
+        will be returned.
+        
+        :param ordered_list_words_enc: List of encoded words, ordered on the number of possible decodings for each 
+        :param cipher_so_far: Cipher found so far
+        :return: Best cipher to be used based on this set of encoded words
+        """
         if len(ordered_list_words_enc) <= 0:
             return cipher_so_far, 0
         else:
@@ -48,8 +71,22 @@ class Solver(object):
 
     def _generate_subset_words_per_letter(self, word_list, cipher_fixed, max_complexity=1e11,
                                           min_set_size=4):
-        # Determine the best order to walk through the letters (certain onces will be easier to workout)
-        # Now we choose the letters that occur in most words first
+        """
+        Determine the best order to walk through the letters (certain ones will be easier to workout as they have fewer
+        possible decodings).
+        Now we choose the letters that occur in most words first.
+        
+        The maximum complexity determines how big the search space can be (fewer words means lower complexity).
+        The minimum set size determines the minimum amount of words we want to have in a set, otherwise we won't start
+        decoding.
+        These parameters allow control over the accuracy vs speed of the algorithm.
+        
+        :param word_list: Complete word list of encoded words
+        :param cipher_fixed: Cipher so far
+        :param max_complexity: Maximum complexity to start decoding a set of words for a letter
+        :param min_set_size: Minimum set of words to be used when decoding
+        :return: generator that yields characters to be decoded with a list of words to use for that.
+        """
         letter_scores = list()
         for char in list(self._character_set):
             word_set = [w for w in word_list if char in w]

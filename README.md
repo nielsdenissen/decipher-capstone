@@ -63,23 +63,28 @@ Example: The word **logging** would result in key `(7, 5, [(2,3,6)])`
 #### Real-time deciphering
 
 1. Firstly a check is done whether the words are already from the language, so no cipher was used.
-2. Otherwise we're trying to decipher it:
-    1. First we order the set of words based on the number of possibilities they have from least to most.
-    1. Then we pick a set with the least amount of possibilities (top of list). If the number of
-        combinations for this set of words is too large (no. possibilities word 1 * no. possibilities word 2 * ...), 
-        we'll lower the set size. This is to prevent the following search to grow too large.
-    1. Now we're going to translate one letter at a time. The philosophy behind this is that letters are
-    distributed over the encoded words and these words have a limited set of possibilities.
-    Picking a letter that occurs in a lot of words makes the possibilities smaller. We'll start with the
-    most promising letter:
-        1. Pick an encoding for this letter and recursively pick the next most promising letter in this set.
-        1. Set the temporary cipher appropriately intermittently. (Example: ieow -> task, cipher: {i:t, e:a, o:s, w:k})
-        This process will lead to quite some branches where words couldn't be translated due to an invalid
-        cipher up until that point. Each branch is ranked to how many words could be translated in it.
-        1. We'll pick the branch with the highest score
-        1. Continue this with the next possible deciphering of a letter and use the cipher that generated the highest
-        score (so the most appropriately deciphered words).
-    1. Grab the next set and continue (we can use the cipher so far to heavily reduce possibilities)
+2. Otherwise we're trying to decipher it. This is done by walking through each letter one by one and
+try to decode it. We'll do this in a smart way, with the letters we know most about first. The philosophy behind this 
+is that letters are distributed over the encoded words and these words have a limited set of possibilities.
+Picking a letter that occurs in a lot of words makes the possibilities smaller. We'll start with the
+most promising letter:
+    1. We order the set of words based on the number of possibilities they have from least to most.
+    1. We start with a large set size of words to be used when decoding. A large set means higher accuracy
+    (when decoding a letter, the more words you have as a reference the better).
+    1. Next we walk through all characters and determine the score based on the number of possible encodings the words
+    have that this letter occurs in. This will give us a sense of complexity for decoding a letter 
+    (no. possibilities word 1 * no. possibilities word 2 * ...). Those with highest complexity will be most robust, 
+    so we start with those, decreasing the set size whenever the complexity gets too high.
+    1. Finally we'll try to decode the letter, by decoding the word set (with appropriate complexity) that contains this
+    character:
+        1. Recursively walk through all encoded words with their possible decodings, leading to intermediate ciphers.
+        1. For all possibilities, keep track of score (number of correctly translated words).
+        1. Choose branch (combinations of decodings for encoded words) that resulted in highest score.
+        1. Return cipher that complies with this branch (list of words with their decodings)
+    1. Take out the decoding of the letter we were looking for and add that to the cipher found so far.
+    1. Continue this process (we can use the cipher so far to heavily reduce possibilities), 
+    lowering the minimum set size as needed (too many possibilities for all letters).
+    
 3. Finally return the found cipher and the deciphered text
 
 ## Customisations
