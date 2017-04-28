@@ -68,18 +68,19 @@ try to decode it. We'll do this in a smart way, with the letters we know most ab
 is that letters are distributed over the encoded words and these words have a limited set of possibilities.
 Picking a letter that occurs in a lot of words makes the possibilities smaller. We'll start with the
 most promising letter:
-    1. We order the set of words based on the number of possibilities they have from least to most.
-    1. We start with a large set size of words to be used when decoding. A large set means higher accuracy
-    (when decoding a letter, the more words you have as a reference the better).
+    1. We order the set of encoded words based on the number of possibilities they have from least to most.
+    1. We pick a number of encoded words we start with to decode. We start with a large set size of words since this 
+    means higher accuracy (when decoding a letter, the more words you have as a reference the better).
     1. Next we walk through all characters and determine the score based on the number of possible encodings the words
     have that this letter occurs in. This will give us a sense of complexity for decoding a letter 
-    (no. possibilities word 1 * no. possibilities word 2 * ...). Those with highest complexity will be most robust, 
-    so we start with those, decreasing the set size whenever the complexity gets too high.
-    1. Finally we'll try to decode the letter, by decoding the word set (with appropriate complexity) that contains this
-    character:
+    (no. possibilities word 1 * no. possibilities word 2 * ...). Those with lowest complexity will be easier to work out
+    as they have only a few options. So we start with those, decreasing the set size whenever the complexity gets too 
+    high.
+    1. This gives us the current most promising letter along with a set of words that it is contained in. Finally we'll 
+    try to decode the letter, by decoding the word set that contains this character:
         1. Recursively walk through all encoded words with their possible decodings, leading to intermediate ciphers.
         1. For all possibilities, keep track of score (number of correctly translated words).
-        1. Choose branch (combinations of decodings for encoded words) that resulted in highest score.
+        1. Choose a branch (combinations of decodings for encoded words) that resulted in highest score.
         1. Return cipher that complies with this branch (list of words with their decodings)
     1. Take out the decoding of the letter we were looking for and add that to the cipher found so far.
     1. Continue this process (we can use the cipher so far to heavily reduce possibilities), 
