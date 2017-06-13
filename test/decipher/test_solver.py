@@ -26,10 +26,12 @@ class TestSolver(unittest.TestCase):
             'en': "Hey everyone, this is a test message to see if how well this algorithm is "
                   "doing. At the moment though, we require quite an elaborate sentence since the "
                   "program might otherwise not find the solution. Make the tests a bit quicker: "
-                  "assemblymembers tephrocorrelation"
+                  "assemblymembers tephrocorrelation",
+            'de': "das ist einen sehr grosse man, sicherheit arbeits genau"
         }
         self.solver_english = Solver(language='en')
         self.solver_dutch = Solver(language='nl')
+        self.solver_german = Solver(language='de')
 
     def _generic_decryption_test(self, test_lang_msgs, target_cipher):
         """
@@ -49,6 +51,8 @@ class TestSolver(unittest.TestCase):
                 solver = self.solver_english
             elif language == 'nl':
                 solver = self.solver_dutch
+            elif language == 'de':
+                solver = self.solver_german
             else:
                 self.assertTrue(False)
 

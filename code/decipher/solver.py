@@ -111,10 +111,11 @@ class Solver(object):
             if len(word_set) >= min_set_size:
                 yield char, word_set
 
-    def solve(self, msg_enc, max_complexity=1e11):
+    def solve(self, msg_enc, max_complexity=1e11, min_set_size=10):
         """
         Decode the encode message.
 
+        :param min_set_size: Minimum size a set of words should be to decipher a letter
         :param msg_enc: The encoded message
         :param max_complexity: Maximum complexity used in searching, reducing this will speed up
         the program but make it less accurate
@@ -145,7 +146,6 @@ class Solver(object):
         total_word_count = 0
 
         cipher_already_fix = {}
-        min_set_size = 10
         while min_set_size > 0:
             self.logger.debug("---- Start deciphering with minimum set of {}".format(min_set_size))
 
@@ -181,6 +181,9 @@ class Solver(object):
             min_set_size -= 1
 
         self.logger.debug("Number of keys found: {}".format(len(cipher_already_fix)))
-        perc_correct = correct_word_count / total_word_count
+        try:
+            perc_correct = correct_word_count / total_word_count
+        except:
+            perc_correct = 0
         self.logger.info("Correctly translated for language {}: {}".format(self.language, perc_correct))
         return cipher_already_fix, perc_correct
